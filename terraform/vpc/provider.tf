@@ -5,6 +5,9 @@ terraform {
       version = "~> 6.0"
     }
   }
+
+  # backend設定はCircleCIのbackend_configで指定
+  backend "s3" {}
 }
 
 # Configure the AWS Provider
