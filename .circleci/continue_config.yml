@@ -1,0 +1,95 @@
+version: 2.1
+
+orbs:
+  terraform: circleci/terraform@3.7.0
+
+parameters:
+  run-terraform-changes:
+    type: boolean
+    default: false
+
+jobs:
+  # VPC: validate & plan
+  validate-plan-vpc:
+    executor: terraform/default
+    steps:
+      - checkout
+      - terraform/init:
+          path: terraform/vpc
+          backend_config: bucket=your-tfstate-bucket,key=vpc/terraform.tfstate,region=ap-northeast-1
+      - terraform/validate:
+          path: terraform/vpc
+      - terraform/plan:
+          path: terraform/vpc
+      - persist_to_workspace:
+          root: .
+          paths:
+            - terraform/vpc/.terraform
+            - terraform/vpc/.terraform.lock.hcl
+
+  # VPC: apply
+  apply-vpc:
+    executor: terraform/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - terraform/apply:
+          path: terraform/vpc
+
+  # EC2: validate & plan
+  validate-plan-ec2:
+    executor: terraform/default
+    steps:
+      - checkout
+      - terraform/init:
+          path: terraform/ec2
+          backend_config: bucket=your-tfstate-bucket,key=ec2/terraform.tfstate,region=ap-northeast-1
+      - terraform/validate:
+          path: terraform/ec2
+      - terraform/plan:
+          path: terraform/ec2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - terraform/ec2/.terraform
+            - terraform/ec2/.terraform.lock.hcl
+
+  # EC2: apply
+  apply-ec2:
+    executor: terraform/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - terraform/apply:
+          path: terraform/ec2
+
+workflows:
+  # プルリクエスト時: validation & plan のみ実行
+  terraform-pr-check:
+    when:
+      and:
+        - << pipeline.parameters.run-terraform-changes >>
+        - not:
+            equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - validate-plan-vpc
+      - validate-plan-ec2
+
+  # main マージ時: apply を実行
+  terraform-apply:
+    when:
+      and:
+        - << pipeline.parameters.run-terraform-changes >>
+        - equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - validate-plan-vpc
+      - validate-plan-ec2
+      - apply-vpc:
+          requires:
+            - validate-plan-vpc
+      - apply-ec2:
+          requires:
+            - validate-plan-ec2
+            - apply-vpc
