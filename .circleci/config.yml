@@ -1,37 +1,14 @@
-version: '2.1'
+version: 2.1
 
 orbs:
-  terraform: circleci/terraform@3.7
+  path-filtering: circleci/path-filtering@1.0.0
 
 workflows:
-  deploy_infrastructure:
+  check-updated-files:
     jobs:
-      - terraform/fmt:
-          checkout: true
-          context: terraform
-          path: terraform/vpc
-
-      - terraform/validate:
-          checkout: true
-          context: terraform
-          path: terraform/vpc
-          requires:
-            - terraform/fmt
-
-      - terraform/plan:
-          checkout: true
-          context: terraform
-          path: terraform/vpc
-          persist-workspace: true
-          requires:
-            - terraform/validate
-
-      - terraform/apply:
-          attach-workspace: true
-          context: terraform
-          path: terraform/vpc
-          filters:
-            branches:
-              only: main
-          requires:
-            - terraform/plan
+      - path-filtering/filter:
+          name: check-updated-files
+          base-revision: main
+          config-path: .circleci/continue_config.yml
+          mapping: |
+            terraform/.* run-terraform-changes true
