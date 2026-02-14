@@ -16,7 +16,7 @@ jobs:
       - checkout
       - terraform/init:
           path: terraform/vpc
-          backend_config: bucket=your-tfstate-bucket,key=vpc/terraform.tfstate,region=ap-northeast-1
+          backend_config: bucket=tfstate-bucket-vpc-202506,key=vpc/terraform.tfstate,region=ap-northeast-1
       - terraform/validate:
           path: terraform/vpc
       - terraform/plan:
@@ -44,7 +44,7 @@ jobs:
       - checkout
       - terraform/init:
           path: terraform/ec2
-          backend_config: bucket=your-tfstate-bucket,key=ec2/terraform.tfstate,region=ap-northeast-1
+          backend_config: bucket=tfstate-bucket-vpc-202506,key=ec2/terraform.tfstate,region=ap-northeast-1
       - terraform/validate:
           path: terraform/ec2
       - terraform/plan:
