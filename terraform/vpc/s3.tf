@@ -1,3 +1,4 @@
+# S3バケット作成
 resource "aws_s3_bucket" "remote_backend" {
   bucket = "tfstate-bucket-vpc-202506" 
   lifecycle {
