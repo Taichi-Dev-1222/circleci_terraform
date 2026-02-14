@@ -38,32 +38,32 @@ jobs:
           path: terraform/vpc
 
   # EC2: validate & plan
-  validate-plan-ec2:
-    executor: terraform/default
-    steps:
-      - checkout
-      - terraform/init:
-          path: terraform/ec2
-          backend_config: bucket=tfstate-bucket-vpc-202506,key=ec2/terraform.tfstate,region=ap-northeast-1
-      - terraform/validate:
-          path: terraform/ec2
-      - terraform/plan:
-          path: terraform/ec2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - terraform/ec2/.terraform
-            - terraform/ec2/.terraform.lock.hcl
+  # validate-plan-ec2:
+  #   executor: terraform/default
+  #   steps:
+  #     - checkout
+  #     - terraform/init:
+  #         path: terraform/ec2
+  #         backend_config: bucket=tfstate-bucket-vpc-202506,key=ec2/terraform.tfstate,region=ap-northeast-1
+  #     - terraform/validate:
+  #         path: terraform/ec2
+  #     - terraform/plan:
+  #         path: terraform/ec2
+  #     - persist_to_workspace:
+  #         root: .
+  #         paths:
+  #           - terraform/ec2/.terraform
+  #           - terraform/ec2/.terraform.lock.hcl
 
-  # EC2: apply
-  apply-ec2:
-    executor: terraform/default
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - terraform/apply:
-          path: terraform/ec2
+  # # EC2: apply
+  # apply-ec2:
+  #   executor: terraform/default
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - terraform/apply:
+  #         path: terraform/ec2
 
 workflows:
   # プルリクエスト時: validation & plan のみ実行
@@ -76,8 +76,8 @@ workflows:
     jobs:
       - validate-plan-vpc:
           context: terraform
-      - validate-plan-ec2:
-          context: terraform
+      # - validate-plan-ec2:
+      #     context: terraform
 
   # main マージ時: apply を実行
   terraform-apply:
@@ -88,14 +88,14 @@ workflows:
     jobs:
       - validate-plan-vpc:
           context: terraform
-      - validate-plan-ec2:
-          context: terraform
+      # - validate-plan-ec2:
+      #     context: terraform
       - apply-vpc:
           context: terraform
           requires:
             - validate-plan-vpc
-      - apply-ec2:
-          context: terraform
-          requires:
-            - validate-plan-ec2
-            - apply-vpc
+      # - apply-ec2:
+      #     context: terraform
+      #     requires:
+      #       - validate-plan-ec2
+      #       - apply-vpc
