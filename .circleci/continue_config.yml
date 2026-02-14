@@ -75,9 +75,9 @@ workflows:
             equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - validate-plan-vpc:
-        context: terraform
+          context: terraform
       - validate-plan-ec2:
-        context: terraform
+          context: terraform
 
   # main マージ時: apply を実行
   terraform-apply:
@@ -87,9 +87,9 @@ workflows:
         - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - validate-plan-vpc:
-        context: terraform
+          context: terraform
       - validate-plan-ec2:
-        context: terraform
+          context: terraform
       - apply-vpc:
           context: terraform
           requires:
