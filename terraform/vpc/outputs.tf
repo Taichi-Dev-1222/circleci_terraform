@@ -26,6 +26,6 @@ output "sg_app_id" {
   value = aws_security_group.app_sg.id
 }
 
-output "sg_rds_id" {
-  value = aws_security_group.rds_sg.id
-}
+# output "sg_rds_id" {
+#   value = aws_security_group.rds_sg.id
+# }
