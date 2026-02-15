@@ -12,4 +12,5 @@ workflows:
           base-revision: main
           config-path: .circleci/continue_config.yml
           mapping: |
-            terraform/.* run-terraform-changes true
+            terraform/vpc/.* run-vpc-changes true
+            terraform/ec2/.* run-ec2-changes true

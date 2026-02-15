@@ -4,7 +4,10 @@ orbs:
   terraform: circleci/terraform@3.7.0
 
 parameters:
-  run-terraform-changes:
+  run-vpc-changes:
+    type: boolean
+    default: false
+  run-ec2-changes:
     type: boolean
     default: false
 
@@ -70,36 +73,52 @@ jobs:
           path: terraform/ec2
 
 workflows:
-  # プルリクエスト時: validation & plan のみ実行
-  terraform-pr-check:
+  # VPC: プルリクエスト時
+  vpc-pr-check:
     when:
       and:
-        - << pipeline.parameters.run-terraform-changes >>
+        - << pipeline.parameters.run-vpc-changes >>
         - not:
             equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - validate-plan-vpc:
           context: terraform
-      - validate-plan-ec2:
-          context: terraform
 
-  # main マージ時: apply を実行
-  terraform-apply:
+  # VPC: main マージ時
+  vpc-apply:
     when:
       and:
-        - << pipeline.parameters.run-terraform-changes >>
+        - << pipeline.parameters.run-vpc-changes >>
         - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - validate-plan-vpc:
-          context: terraform
-      - validate-plan-ec2:
           context: terraform
       - apply-vpc:
           context: terraform
           requires:
             - validate-plan-vpc
+
+  # EC2: プルリクエスト時
+  ec2-pr-check:
+    when:
+      and:
+        - << pipeline.parameters.run-ec2-changes >>
+        - not:
+            equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - validate-plan-ec2:
+          context: terraform
+
+  # EC2: main マージ時
+  ec2-apply:
+    when:
+      and:
+        - << pipeline.parameters.run-ec2-changes >>
+        - equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - validate-plan-ec2:
+          context: terraform
       - apply-ec2:
           context: terraform
           requires:
             - validate-plan-ec2
-            - apply-vpc
