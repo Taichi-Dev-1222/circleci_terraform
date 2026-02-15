@@ -4,7 +4,8 @@ resource "aws_key_pair" "keypair" {
   public_key = var.ec2_public_key
 
   tags = {
-    Name = "terraform-keypair"
+    Name        = "terraform-keypair"
+    Environment = "production"
   }
 }
 
