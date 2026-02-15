@@ -1,6 +1,6 @@
 resource "aws_key_pair" "keypair" {
   key_name   = "terraform-keypair"
-  public_key = file("~/.ssh/terraform-ec2.pub")
+  public_key = var.ec2_public_key
 
   tags = {
     Name    = "terraform-keypair"

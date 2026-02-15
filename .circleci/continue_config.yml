@@ -49,13 +49,14 @@ jobs:
           path: terraform/ec2
       - terraform/plan:
           path: terraform/ec2
+          var: ec2_public_key=${EC2_PUBLIC_KEY}
       - persist_to_workspace:
           root: .
           paths:
             - terraform/ec2/.terraform
             - terraform/ec2/.terraform.lock.hcl
 
-  # # EC2: apply
+  # EC2: apply
   apply-ec2:
     executor: terraform/default
     steps:
@@ -64,6 +65,7 @@ jobs:
           at: .
       - terraform/apply:
           path: terraform/ec2
+          var: ec2_public_key=${EC2_PUBLIC_KEY}
 
 workflows:
   # プルリクエスト時: validation & plan のみ実行
