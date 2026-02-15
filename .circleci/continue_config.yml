@@ -43,16 +43,17 @@ jobs:
   # EC2: validate & plan
   validate-plan-ec2:
     executor: terraform/default
-    environment:
-      TF_VAR_ec2_public_key: ${EC2_PUBLIC_KEY}
     steps:
       - checkout
       - run:
-          name: Debug - Check SSH key format
+          name: Normalize SSH key and set environment variable
           command: |
-            echo "Key length: ${#EC2_PUBLIC_KEY}"
-            echo "Key starts with: $(echo $EC2_PUBLIC_KEY | head -c 30)"
-            echo "Key type: $(echo $EC2_PUBLIC_KEY | awk '{print $1}')"
+            # 改行や余分な空白を削除
+            NORMALIZED_KEY=$(echo "$EC2_PUBLIC_KEY" | tr -d '\n\r' | tr -s ' ')
+            echo "export TF_VAR_ec2_public_key=\"${NORMALIZED_KEY}\"" >> $BASH_ENV
+            echo "Original key length: ${#EC2_PUBLIC_KEY}"
+            echo "Normalized key length: ${#NORMALIZED_KEY}"
+            echo "Key type: $(echo $NORMALIZED_KEY | awk '{print $1}')"
       - terraform/init:
           path: terraform/ec2
           backend_config: bucket=tfstate-bucket-vpc-202506,key=ec2/terraform.tfstate,region=ap-northeast-1
@@ -69,18 +70,18 @@ jobs:
   # EC2: apply
   apply-ec2:
     executor: terraform/default
-    environment:
-      TF_VAR_ec2_public_key: ${EC2_PUBLIC_KEY}
     steps:
       - checkout
       - attach_workspace:
           at: .
       - run:
-          name: Debug - Check SSH key format before apply
+          name: Normalize SSH key and set environment variable
           command: |
-            echo "Key length: ${#EC2_PUBLIC_KEY}"
-            echo "Key starts with: $(echo $EC2_PUBLIC_KEY | head -c 30)"
-            echo "Key type: $(echo $EC2_PUBLIC_KEY | awk '{print $1}')"
+            # 改行や余分な空白を削除
+            NORMALIZED_KEY=$(echo "$EC2_PUBLIC_KEY" | tr -d '\n\r' | tr -s ' ')
+            echo "export TF_VAR_ec2_public_key=\"${NORMALIZED_KEY}\"" >> $BASH_ENV
+            echo "Normalized key length: ${#NORMALIZED_KEY}"
+            echo "Normalized key type: $(echo $NORMALIZED_KEY | awk '{print $1}')"
       - terraform/apply:
           path: terraform/ec2
 
