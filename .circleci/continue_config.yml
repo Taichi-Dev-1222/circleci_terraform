@@ -47,6 +47,12 @@ jobs:
       TF_VAR_ec2_public_key: ${EC2_PUBLIC_KEY}
     steps:
       - checkout
+      - run:
+          name: Debug - Check SSH key format
+          command: |
+            echo "Key length: ${#EC2_PUBLIC_KEY}"
+            echo "Key starts with: $(echo $EC2_PUBLIC_KEY | head -c 30)"
+            echo "Key type: $(echo $EC2_PUBLIC_KEY | awk '{print $1}')"
       - terraform/init:
           path: terraform/ec2
           backend_config: bucket=tfstate-bucket-vpc-202506,key=ec2/terraform.tfstate,region=ap-northeast-1
@@ -69,6 +75,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - run:
+          name: Debug - Check SSH key format before apply
+          command: |
+            echo "Key length: ${#EC2_PUBLIC_KEY}"
+            echo "Key starts with: $(echo $EC2_PUBLIC_KEY | head -c 30)"
+            echo "Key type: $(echo $EC2_PUBLIC_KEY | awk '{print $1}')"
       - terraform/apply:
           path: terraform/ec2
 
