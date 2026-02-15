@@ -9,7 +9,6 @@ workflows:
     jobs:
       - path-filtering/filter:
           name: check-updated-files
-          base-revision: main
           config-path: .circleci/continue_config.yml
           mapping: |
             terraform/vpc/.* run-vpc-changes true
