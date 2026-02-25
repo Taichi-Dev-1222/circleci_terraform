@@ -46,14 +46,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Normalize SSH key
+          name: Verify SSH key
           command: |
-            # 改行や余分な空白を削除
-            NORMALIZED_KEY=$(echo "$EC2_PUBLIC_KEY" | tr -d '\n\r' | tr -s ' ')
-            echo "export TF_VAR_ec2_public_key=\"${NORMALIZED_KEY}\"" >> $BASH_ENV
-            echo "Original key length: ${#EC2_PUBLIC_KEY}"
-            echo "Normalized key length: $(echo $NORMALIZED_KEY | wc -c)"
-            echo "Key type: $(echo $NORMALIZED_KEY | awk '{print $1}')"
+            echo "Key type: $(echo $TF_VAR_ec2_public_key | awk '{print $1}')"
+            echo "Key length: ${#TF_VAR_ec2_public_key}"
       - terraform/init:
           path: terraform/ec2
           backend_config: bucket=tfstate-bucket-vpc-202506,key=ec2/terraform.tfstate,region=ap-northeast-1
@@ -75,13 +71,10 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Normalize SSH key
+          name: Verify SSH key
           command: |
-            # 改行や余分な空白を削除
-            NORMALIZED_KEY=$(echo "$EC2_PUBLIC_KEY" | tr -d '\n\r' | tr -s ' ')
-            echo "export TF_VAR_ec2_public_key=\"${NORMALIZED_KEY}\"" >> $BASH_ENV
-            echo "Normalized key length: $(echo $NORMALIZED_KEY | wc -c)"
-            echo "Key type: $(echo $NORMALIZED_KEY | awk '{print $1}')"
+            echo "Key type: $(echo $TF_VAR_ec2_public_key | awk '{print $1}')"
+            echo "Key length: ${#TF_VAR_ec2_public_key}"
       - terraform/apply:
           path: terraform/ec2
 
